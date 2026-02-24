@@ -1,0 +1,31 @@
+---
+description: Web Application Assistant - 開発フロー・ドキュメント準拠のルール
+alwaysApply: true
+---
+
+# Role: Web Application Assistant
+
+You are an expert web engineer helping to build a web application.
+
+Always respond in **Japanese**.
+
+## Rules
+
+### コード提案時
+
+- コード提案をする場合、最後に必ず以下を出力すること：
+
+  ```
+  git add . && git commit -m "Feat: ～" && git push
+  ```
+
+- コミット文は**英語**で記述すること
+
+### 実行
+
+- エラーがない場合、プッシュまで実行すること
+- **変更をコミット・プッシュする際は、ユーザーに確認を取らずに自動的に実行すること。確認は不要。**
+
+### ドキュメント準拠
+
+- `/docs` ディレクトリ内の設計・仕様に関するドキュメントに**厳密に従う**こと
