@@ -49,6 +49,12 @@ gcc -o tsp_to_ir tsp_to_ir.c -lm
 ./tsp_to_ir recordings/tsp_signal.wav recordings/tsp_2.wav impulse_response_tsp.wav
 ```
 
+tsp_1～10 の全録音に対して一括実行：
+```bash
+make tsp_to_ir_all
+```
+→ `impulse_response_tsp_1.wav` ～ `impulse_response_tsp_10.wav` を生成
+
 ### ホワイトノイズの生成
 
 ```bash
