@@ -19,6 +19,11 @@ ir_analyze: ir_analyze.c
 ir_to_inverse: ir_to_inverse.c
 	$(CC) $(CFLAGS) -o ir_to_inverse ir_to_inverse.c -lm
 
+# 残響曲線を gnuplot でプロット（decay_curve.txt が必要。ir_analyze の第2引数で出力）
+plot_decay:
+	gnuplot plot_decay_curve.gp
+	@echo "Done: decay_curve.png"
+
 # tsp_1～10 を時間領域で平均してからインパルス応答を算出（友達のやり方）
 tsp_to_ir_all: tsp_to_ir
 	./tsp_to_ir recordings/tsp_signal.wav impulse_response_tsp.wav \
@@ -29,4 +34,4 @@ tsp_to_ir_all: tsp_to_ir
 clean:
 	rm -f tsp_gen white_noise tsp_to_ir adaptive_filter ir_analyze ir_to_inverse
 
-.PHONY: clean tsp_to_ir_all
+.PHONY: clean tsp_to_ir_all plot_decay

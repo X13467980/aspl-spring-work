@@ -95,6 +95,12 @@ make tsp_to_ir_all
 - デフォルト入力: `impulse_response.wav`
 - 第2引数指定時: 残響曲線（時間 vs dB）をテキストファイルに出力
 
+残響曲線を gnuplot でプロット：
+```bash
+./ir_analyze impulse_response_white.wav decay_curve.txt  # 曲線データ出力
+make plot_decay                                           # decay_curve.png を生成
+```
+
 ### 逆フィルタを算出（発展課題）
 
 ```bash
