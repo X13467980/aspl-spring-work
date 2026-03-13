@@ -58,6 +58,11 @@ gcc -o white_noise white_noise.c
 | ビット深度 | 16 bit |
 | 形式 | WAV（PCM） |
 
+## 録音ファイル
+
+収録実験で取得したファイルは `recordings/` に格納しています。  
+**バックアップを推奨します。** 詳細は [recordings/README.md](recordings/README.md) を参照。
+
 ## 課題内容
 
 詳細は [docs/春期休暇課題.md](docs/春期休暇課題.md) を参照してください。
