@@ -16,6 +16,9 @@ adaptive_filter: adaptive_filter.c
 ir_analyze: ir_analyze.c
 	$(CC) $(CFLAGS) -o ir_analyze ir_analyze.c -lm
 
+ir_to_inverse: ir_to_inverse.c
+	$(CC) $(CFLAGS) -o ir_to_inverse ir_to_inverse.c -lm
+
 # tsp_1～10 を時間領域で平均してからインパルス応答を算出（友達のやり方）
 tsp_to_ir_all: tsp_to_ir
 	./tsp_to_ir recordings/tsp_signal.wav impulse_response_tsp.wav \
@@ -24,6 +27,6 @@ tsp_to_ir_all: tsp_to_ir
 	@echo "Done: impulse_response_tsp.wav (10回平均)"
 
 clean:
-	rm -f tsp_gen white_noise tsp_to_ir adaptive_filter ir_analyze
+	rm -f tsp_gen white_noise tsp_to_ir adaptive_filter ir_analyze ir_to_inverse
 
 .PHONY: clean tsp_to_ir_all

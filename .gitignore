@@ -3,6 +3,7 @@ white_noise
 tsp_to_ir
 adaptive_filter
 ir_analyze
+ir_to_inverse
 *.wav
 
 # クローンした友達のリポジトリ（コミットしない）
