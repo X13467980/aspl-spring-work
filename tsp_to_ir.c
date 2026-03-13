@@ -1,6 +1,12 @@
 /*
  * tsp_to_ir - TSP信号とその応答からインパルス応答を算出
  * 周波数領域で逆フィルタ（down-TSP）を適用
+ *
+ * 複数の応答ファイルを指定した場合、時間領域で平均してから
+ * インパルス応答を求める（ノイズ低減）
+ *
+ * 使い方:
+ *   ./tsp_to_ir tsp_signal.wav output.wav response1.wav [response2.wav ...]
  */
 
 #include <stdio.h>
@@ -166,13 +172,19 @@ int write_wav(const char *filename, int16_t *samples, int num_samples, int fs) {
 }
 
 int main(int argc, char *argv[]) {
-    const char *tsp_file = (argc > 1) ? argv[1] : "tsp_signal.wav";
-    const char *response_file = (argc > 2) ? argv[2] : "tsp_response.wav";
-    const char *output_file = (argc > 3) ? argv[3] : "impulse_response.wav";
+    if (argc < 4) {
+        fprintf(stderr, "使い方: %s tsp_signal.wav output.wav response1.wav [response2.wav ...]\n", argv[0]);
+        fprintf(stderr, "複数の応答を指定すると時間領域で平均してからインパルス応答を算出\n");
+        return 1;
+    }
+
+    const char *tsp_file = argv[1];
+    const char *output_file = argv[2];
+    int num_responses = argc - 3;
 
     printf("TSP信号からインパルス応答を算出中...\n");
     printf("TSP信号: %s\n", tsp_file);
-    printf("TSP応答: %s\n", response_file);
+    printf("応答ファイル: %d 個（時間領域で平均）\n", num_responses);
     printf("出力: %s\n", output_file);
 
     int16_t *tsp_samples = NULL;
@@ -180,20 +192,60 @@ int main(int argc, char *argv[]) {
     int tsp_len = read_wav(tsp_file, &tsp_samples, &fs_tsp);
     if (tsp_len < 0) return 1;
 
-    int16_t *response_samples = NULL;
-    int fs_response;
-    int response_len = read_wav(response_file, &response_samples, &fs_response);
-    if (response_len < 0) {
-        free(tsp_samples);
-        return 1;
+    /* 複数の応答を読み込み、時間領域で平均 */
+    int response_len = 0;
+    int32_t *sum_buf = NULL;  /* オーバーフロー防止のため int32_t で合計 */
+
+    for (int r = 0; r < num_responses; r++) {
+        const char *response_file = argv[3 + r];
+        int16_t *buf = NULL;
+        int fs_r;
+        int len = read_wav(response_file, &buf, &fs_r);
+        if (len < 0) {
+            fprintf(stderr, "読み込み失敗: %s\n", response_file);
+            free(tsp_samples);
+            if (sum_buf) free(sum_buf);
+            return 1;
+        }
+        if (fs_r != fs_tsp) {
+            fprintf(stderr, "エラー: %s のサンプリング周波数が一致しません\n", response_file);
+            free(buf);
+            free(tsp_samples);
+            if (sum_buf) free(sum_buf);
+            return 1;
+        }
+
+        if (r == 0) {
+            response_len = len;
+            sum_buf = (int32_t *)calloc((size_t)len, sizeof(int32_t));
+            if (!sum_buf) {
+                free(buf);
+                free(tsp_samples);
+                return 1;
+            }
+        }
+
+        int copy_len = (len < response_len) ? len : response_len;
+        for (int i = 0; i < copy_len; i++) {
+            sum_buf[i] += buf[i];
+        }
+        free(buf);
     }
 
-    if (fs_tsp != fs_response) {
-        fprintf(stderr, "エラー: サンプリング周波数が一致しません\n");
+    /* 平均を計算して int16_t に変換 */
+    int16_t *response_samples = (int16_t *)malloc((size_t)response_len * sizeof(int16_t));
+    if (!response_samples) {
         free(tsp_samples);
-        free(response_samples);
+        free(sum_buf);
         return 1;
     }
+    for (int i = 0; i < response_len; i++) {
+        int32_t avg = sum_buf[i] / num_responses;
+        if (avg > 32767) avg = 32767;
+        if (avg < -32768) avg = -32768;
+        response_samples[i] = (int16_t)avg;
+    }
+    free(sum_buf);
 
     int N = 1;
     int max_len = (tsp_len > response_len) ? tsp_len : response_len;

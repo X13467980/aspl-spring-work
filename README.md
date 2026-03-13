@@ -44,16 +44,22 @@ gcc -o tsp_to_ir tsp_to_ir.c -lm
 ./tsp_to_ir [TSP信号] [TSP応答] [出力ファイル]
 ```
 
-例：
+例（1個）：
 ```bash
-./tsp_to_ir recordings/tsp_signal.wav recordings/tsp_2.wav impulse_response_tsp.wav
+./tsp_to_ir recordings/tsp_signal.wav impulse_response_tsp.wav recordings/tsp_1.wav
 ```
 
-tsp_1～10 の全録音に対して一括実行：
+例（複数→時間領域で平均してノイズ低減）：
+```bash
+./tsp_to_ir recordings/tsp_signal.wav impulse_response_tsp.wav \
+  recordings/tsp_1.wav recordings/tsp_2.wav ... recordings/tsp_10.wav
+```
+
+tsp_1～10 を平均してインパルス応答を算出：
 ```bash
 make tsp_to_ir_all
 ```
-→ `impulse_response_tsp_1.wav` ～ `impulse_response_tsp_10.wav` を生成
+→ `impulse_response_tsp.wav` を生成（10回平均）
 
 ### ホワイトノイズの生成
 
