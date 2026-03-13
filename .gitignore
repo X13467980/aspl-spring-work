@@ -2,4 +2,8 @@ tsp_gen
 white_noise
 tsp_to_ir
 adaptive_filter
+ir_analyze
 *.wav
+
+# クローンした友達のリポジトリ（コミットしない）
+aspl-spring-work/
