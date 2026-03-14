@@ -19,10 +19,24 @@ ir_analyze: ir_analyze.c
 ir_to_inverse: ir_to_inverse.c
 	$(CC) $(CFLAGS) -o ir_to_inverse ir_to_inverse.c -lm
 
+ir_to_txt: ir_to_txt.c
+	$(CC) $(CFLAGS) -o ir_to_txt ir_to_txt.c
+
 # 残響曲線を gnuplot でプロット（decay_curve.txt が必要。ir_analyze の第2引数で出力）
 plot_decay:
 	gnuplot plot_decay_curve.gp
 	@echo "Done: decay_curve.png"
+
+# インパルス応答を gnuplot でプロット
+plot_ir: ir_to_txt
+	./ir_to_txt impulse_response_tsp.wav ir_data.txt
+	gnuplot plot_ir.gp
+	@echo "Done: impulse_response.png"
+
+plot_ir_white: ir_to_txt
+	./ir_to_txt impulse_response_white.wav ir_data.txt
+	gnuplot -e "outfile='impulse_response_white.png'" plot_ir.gp
+	@echo "Done: impulse_response_white.png"
 
 # tsp_1～10 を時間領域で平均してからインパルス応答を算出（友達のやり方）
 tsp_to_ir_all: tsp_to_ir
@@ -32,6 +46,6 @@ tsp_to_ir_all: tsp_to_ir
 	@echo "Done: impulse_response_tsp.wav (10回平均)"
 
 clean:
-	rm -f tsp_gen white_noise tsp_to_ir adaptive_filter ir_analyze ir_to_inverse
+	rm -f tsp_gen white_noise tsp_to_ir adaptive_filter ir_analyze ir_to_inverse ir_to_txt
 
-.PHONY: clean tsp_to_ir_all plot_decay
+.PHONY: clean tsp_to_ir_all plot_decay plot_ir plot_ir_white

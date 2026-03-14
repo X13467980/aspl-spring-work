@@ -4,9 +4,11 @@ tsp_to_ir
 adaptive_filter
 ir_analyze
 ir_to_inverse
+ir_to_txt
 *.wav
 decay_curve*.txt
 decay_curve*.png
+ir_data.txt
 
 # クローンした友達のリポジトリ（コミットしない）
 aspl-spring-work/
