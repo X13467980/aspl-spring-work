@@ -5,6 +5,7 @@ adaptive_filter
 ir_analyze
 ir_to_inverse
 ir_to_txt
+ir_add_noise
 *.wav
 decay_curve*.txt
 decay_curve*.png
