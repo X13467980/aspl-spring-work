@@ -10,10 +10,11 @@ if (!exists("outfile")) outfile = "impulse_response.png"
 set terminal pngcairo size 800, 400 font "Helvetica,12"
 set output outfile
 
-set xlabel "時間 (秒)"
-set ylabel "振幅"
-set title "インパルス応答"
+set xlabel "Time [s]"
+set ylabel "Amplitude"
 set grid
 set key off
+
+set yrange [-1.15:1.15]
 
 plot datafile using 1:2 with lines lw 1 lc rgb "#e41a1c"
