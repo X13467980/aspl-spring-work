@@ -12,6 +12,8 @@ decay_curve*.png
 ir_data.txt
 ir_data_sn20.txt
 ir_data_sn50.txt
+ir_data_white_sn20.txt
+ir_data_white_sn50.txt
 
 # クローンした友達のリポジトリ（コミットしない）
 aspl-spring-work/

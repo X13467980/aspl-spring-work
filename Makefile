@@ -72,6 +72,20 @@ plot_ir_white: ir_to_txt
 	gnuplot -e "outfile='impulse_response_white.png'" plot_ir.gp
 	@echo "Done: impulse_response_white.png"
 
+# 白色雑音 SN20 のインパルス応答
+plot_ir_white_sn20: ir_add_noise ir_to_txt
+	./ir_add_noise impulse_response_white.wav ir_white_sn20.wav 20
+	./ir_to_txt ir_white_sn20.wav ir_data_white_sn20.txt
+	gnuplot -e "datafile='ir_data_white_sn20.txt'; outfile='impulse_response_white_sn20.png'" plot_ir.gp
+	@echo "Done: impulse_response_white_sn20.png"
+
+# 白色雑音 SN50 のインパルス応答
+plot_ir_white_sn50: ir_add_noise ir_to_txt
+	./ir_add_noise impulse_response_white.wav ir_white_sn50.wav 50
+	./ir_to_txt ir_white_sn50.wav ir_data_white_sn50.txt
+	gnuplot -e "datafile='ir_data_white_sn50.txt'; outfile='impulse_response_white_sn50.png'" plot_ir.gp
+	@echo "Done: impulse_response_white_sn50.png"
+
 # tsp_1～10 を時間領域で平均してからインパルス応答を算出（友達のやり方）
 tsp_to_ir_all: tsp_to_ir
 	./tsp_to_ir recordings/tsp_signal.wav impulse_response_tsp.wav \
@@ -82,4 +96,4 @@ tsp_to_ir_all: tsp_to_ir
 clean:
 	rm -f tsp_gen white_noise tsp_to_ir adaptive_filter ir_analyze ir_to_inverse ir_to_txt ir_add_noise
 
-.PHONY: clean tsp_to_ir_all plot_decay plot_decay_white plot_decay_white_sn20 plot_decay_white_sn50 plot_decay_white_t10t20 plot_decay_t10t20 plot_ir plot_ir_white
+.PHONY: clean tsp_to_ir_all plot_decay plot_decay_white plot_decay_white_sn20 plot_decay_white_sn50 plot_decay_white_t10t20 plot_decay_t10t20 plot_ir plot_ir_white plot_ir_white_sn20 plot_ir_white_sn50
