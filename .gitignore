@@ -10,6 +10,8 @@ ir_add_noise
 decay_curve*.txt
 decay_curve*.png
 ir_data.txt
+ir_data_sn20.txt
+ir_data_sn50.txt
 
 # クローンした友達のリポジトリ（コミットしない）
 aspl-spring-work/
