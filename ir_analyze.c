@@ -132,12 +132,16 @@ void schroeder_integral(int16_t *ir, int len, double *decay_curve) {
 /*
  * 線形回帰で減衰時間を計算
  * start_db から end_db の区間で傾きを求め、T10/T20 を算出
+ * slope, intercept に回帰直線の係数を返す（NULL可）
  * 戻り値: 減衰時間（秒）、エラー時は -1
  */
 double calculate_decay_time(double *decay_curve, int len, int fs,
-                            double start_db, double end_db, int *start_idx, int *end_idx) {
+                            double start_db, double end_db, int *start_idx, int *end_idx,
+                            double *out_slope, double *out_intercept) {
     *start_idx = -1;
     *end_idx = -1;
+    if (out_slope) *out_slope = 0.0;
+    if (out_intercept) *out_intercept = 0.0;
 
     for (int i = 0; i < len; i++) {
         if (*start_idx < 0 && decay_curve[i] <= start_db && decay_curve[i] >= end_db) {
@@ -176,6 +180,9 @@ double calculate_decay_time(double *decay_curve, int len, int fs,
         return -1.0;
     }
 
+    if (out_slope) *out_slope = slope;
+    if (out_intercept) *out_intercept = (sum_y - slope * sum_x) / n;
+
     double db_range = fabs(start_db - end_db);
     return db_range / (-slope);
 }
@@ -212,11 +219,15 @@ int main(int argc, char *argv[]) {
     schroeder_integral(ir_samples, eff_len, decay_curve);
 
     int t10_start, t10_end;
-    double t10 = calculate_decay_time(decay_curve, eff_len, fs, -5.0, -15.0, &t10_start, &t10_end);
+    double t10_slope, t10_intercept;
+    double t10 = calculate_decay_time(decay_curve, eff_len, fs, -5.0, -15.0,
+                                      &t10_start, &t10_end, &t10_slope, &t10_intercept);
     double rt60_t10 = (t10 > 0) ? t10 * 6.0 : -1.0;
 
     int t20_start, t20_end;
-    double t20 = calculate_decay_time(decay_curve, eff_len, fs, -5.0, -25.0, &t20_start, &t20_end);
+    double t20_slope, t20_intercept;
+    double t20 = calculate_decay_time(decay_curve, eff_len, fs, -5.0, -25.0,
+                                      &t20_start, &t20_end, &t20_slope, &t20_intercept);
     double rt60_t20 = (t20 > 0) ? t20 * 3.0 : -1.0;
 
     printf("\n=== 残響時間解析結果 ===\n");
@@ -246,6 +257,31 @@ int main(int argc, char *argv[]) {
             }
             fclose(fp);
             printf("\n残響曲線を %s に保存しました\n", curve_file);
+
+            /* フィット線パラメータを出力（gnuplot用） */
+            size_t base_len = strcspn(curve_file, ".");
+            char fit_file[256];
+            if (base_len >= sizeof(fit_file) - 9) base_len = sizeof(fit_file) - 9;
+            memcpy(fit_file, curve_file, base_len);
+            fit_file[base_len] = '\0';
+            strcat(fit_file, "_fit.gp");
+
+            FILE *ffp = fopen(fit_file, "w");
+            if (ffp && t10 > 0 && t20 > 0) {
+                fprintf(ffp, "# T10/T20 線形回帰フィット線 (dB = slope * t + intercept)\n");
+                fprintf(ffp, "t10 = %.6f\n", t10);
+                fprintf(ffp, "t20 = %.6f\n", t20);
+                fprintf(ffp, "rt60_t10 = %.6f\n", rt60_t10);
+                fprintf(ffp, "rt60_t20 = %.6f\n", rt60_t20);
+                fprintf(ffp, "slope_t10 = %.6f\n", t10_slope);
+                fprintf(ffp, "intercept_t10 = %.6f\n", t10_intercept);
+                fprintf(ffp, "slope_t20 = %.6f\n", t20_slope);
+                fprintf(ffp, "intercept_t20 = %.6f\n", t20_intercept);
+                fclose(ffp);
+                printf("フィット線パラメータを %s に保存しました\n", fit_file);
+            } else if (ffp) {
+                fclose(ffp);
+            }
         }
     }
 

@@ -61,6 +61,40 @@ plot_decay_t10t20:
 	gnuplot plot_decay_curve_t10t20.gp
 	@echo "Done: decay_curve_t10t20.png"
 
+# 残響曲線の減衰部分を拡大表示（T10/T20フィット線付き）
+plot_decay_zoom: ir_analyze
+	./ir_analyze impulse_response_tsp.wav decay_curve.txt
+	gnuplot plot_decay_curve_zoom.gp
+	@echo "Done: decay_curve_zoom.png"
+
+# 白色信号 SN20 の残響曲線減衰部分を拡大表示（T10/T20フィット線付き）
+plot_decay_zoom_white_sn20: ir_add_noise ir_analyze
+	./ir_add_noise impulse_response_white.wav ir_white_sn20.wav 20
+	./ir_analyze ir_white_sn20.wav decay_curve_white_sn20.txt
+	gnuplot -e "datafile='decay_curve_white_sn20.txt'; outfile='decay_curve_white_sn20_zoom.png'; xmin=0.05; xmax=0.20" plot_decay_curve_zoom.gp
+	@echo "Done: decay_curve_white_sn20_zoom.png"
+
+# 白色信号 SN50 の残響曲線減衰部分を拡大表示（T10/T20フィット線付き）
+plot_decay_zoom_white_sn50: ir_add_noise ir_analyze
+	./ir_add_noise impulse_response_white.wav ir_white_sn50.wav 50
+	./ir_analyze ir_white_sn50.wav decay_curve_white_sn50.txt
+	gnuplot -e "datafile='decay_curve_white_sn50.txt'; outfile='decay_curve_white_sn50_zoom.png'; xmin=0.05; xmax=0.20" plot_decay_curve_zoom.gp
+	@echo "Done: decay_curve_white_sn50_zoom.png"
+
+# TSP信号の波形を gnuplot でプロット
+plot_tsp: tsp_gen ir_to_txt
+	./tsp_gen
+	./ir_to_txt tsp_signal.wav tsp_waveform.txt
+	gnuplot plot_tsp.gp
+	@echo "Done: tsp_waveform.png"
+
+# 白色信号（180秒）の波形を gnuplot でプロット
+plot_white_noise: white_noise ir_to_txt
+	./white_noise
+	./ir_to_txt white_noise_180s.wav white_noise_waveform.txt
+	gnuplot plot_white_noise.gp
+	@echo "Done: white_noise_waveform.png"
+
 # インパルス応答を gnuplot でプロット
 plot_ir: ir_to_txt
 	./ir_to_txt impulse_response_tsp.wav ir_data.txt
@@ -96,4 +130,4 @@ tsp_to_ir_all: tsp_to_ir
 clean:
 	rm -f tsp_gen white_noise tsp_to_ir adaptive_filter ir_analyze ir_to_inverse ir_to_txt ir_add_noise
 
-.PHONY: clean tsp_to_ir_all plot_decay plot_decay_white plot_decay_white_sn20 plot_decay_white_sn50 plot_decay_white_t10t20 plot_decay_t10t20 plot_ir plot_ir_white plot_ir_white_sn20 plot_ir_white_sn50
+.PHONY: clean tsp_to_ir_all plot_tsp plot_white_noise plot_decay plot_decay_zoom plot_decay_zoom_white_sn20 plot_decay_zoom_white_sn50 plot_decay_white plot_decay_white_sn20 plot_decay_white_sn50 plot_decay_white_t10t20 plot_decay_t10t20 plot_ir plot_ir_white plot_ir_white_sn20 plot_ir_white_sn50
